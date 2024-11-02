@@ -2,7 +2,7 @@ use super::{ArchCollectionWrapper, BorrowedArchCollection, OwnedArchCollection, 
 use pipe_trait::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Copy, Clone, Default)]
 #[serde(
     from = "SerdeHelper<ArchCollection>",
     into = "SerdeHelper<ArchCollection>"
@@ -11,6 +11,7 @@ pub enum ArchFilter<ArchCollection>
 where
     ArchCollection: ArchCollectionWrapper,
 {
+    #[default]
     Any,
     Selective(ArchCollection),
 }
@@ -113,17 +114,6 @@ fn test_filter() {
         vec!["x86_64", "i686", "any"],
     );
     assert_eq!(&actual, &expected);
-}
-
-/* OPTION HELPER */
-
-impl<ArchCollection> Default for ArchFilter<ArchCollection>
-where
-    ArchCollection: ArchCollectionWrapper,
-{
-    fn default() -> Self {
-        ArchFilter::Any
-    }
 }
 
 /* SERDE HELPER */
