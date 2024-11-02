@@ -29,6 +29,7 @@ pub fn init_aur_builder(args: InitAurBuilderArgs) -> Status {
         .write(true)
         .read(true)
         .create(true)
+        .truncate(false)
         .open(BUILD_PACMAN_REPO)
         .map_err(|error| {
             eprintln!("⮾ {}", error);

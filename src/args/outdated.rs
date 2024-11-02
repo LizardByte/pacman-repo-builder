@@ -11,18 +11,13 @@ pub struct OutdatedArgs {
     pub details: Option<OutdatedDetails>,
 }
 
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Default)]
 pub enum OutdatedDetails {
     PkgName,
+    #[default]
     PkgFilePath,
     LossyYaml,
     StrictYaml,
-}
-
-impl Default for OutdatedDetails {
-    fn default() -> Self {
-        OutdatedDetails::PkgFilePath
-    }
 }
 
 impl FromStr for OutdatedDetails {
