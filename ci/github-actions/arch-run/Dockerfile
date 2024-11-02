@@ -1,10 +1,10 @@
-from archlinux:base-devel
+FROM archlinux:base-devel
 
-copy pacman.conf /etc/pacman.conf
+COPY pacman.conf /etc/pacman.conf
 
-run pacman -Syu --noconfirm
-run pacman -S --noconfirm --needed --overwrite '*' bash rustup gcc llvm pkgconf
+RUN pacman -Syu --noconfirm && \
+  pacman -S --noconfirm --needed --overwrite '*' bash rustup gcc llvm pkgconf
 
-copy run.bash /run.bash
+COPY run.bash /run.bash
 
-entrypoint ["/run.bash"]
+ENTRYPOINT ["/run.bash"]
