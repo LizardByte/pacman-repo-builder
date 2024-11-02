@@ -1,13 +1,12 @@
 [package]
 name = "pacman-repo-builder"
 description = "Build a custom pacman repository from a collection of PKGBUILD directories"
-version = "0.0.0-rc.65"
-authors = ["khai96_ <hvksmr1996@gmail.com>"]
+version = "0.0.0"
 edition = "2021"
 readme = "README.md"
 license = "GPL-3.0"
-documentation = "https://docs.rs/pacman-repo-builder"
-repository = "https://github.com/KSXGitHub/pacman-repo-builder.git"
+documentation = "https://github.com/LizardByte/pacman-repo-builder/blob/master/README.md"
+repository = "https://github.com/LizardByte/pacman-repo-builder.git"
 keywords = [
   "pacman",
   "arch",
