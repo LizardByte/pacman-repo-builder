@@ -3,6 +3,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/lizardbyte/pacman-repo-builder.svg?logo=github&style=for-the-badge)](https://github.com/LizardByte/pacman-repo-builder)
 [![GitHub Releases](https://img.shields.io/github/downloads/lizardbyte/pacman-repo-builder/total.svg?style=for-the-badge&logo=github)](https://github.com/LizardByte/pacman-repo-builder/releases/latest)
 [![GitHub Workflow Status (CI)](https://img.shields.io/github/actions/workflow/status/lizardbyte/pacman-repo-builder/ci.yml.svg?branch=master&label=CI%20build&logo=github&style=for-the-badge)](https://github.com/LizardByte/pacman-repo-builder/actions/workflows/ci.yml?query=branch%3Amaster)
+[![Codecov](https://img.shields.io/codecov/c/gh/LizardByte/pacman-repo-builder?token=HZPhTVKYKt&style=for-the-badge&logo=codecov&label=codecov)](https://codecov.io/gh/LizardByte/pacman-repo-builder)
 
 Build a custom pacman repository from a collection of PKGBUILD directories.
 
