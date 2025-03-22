@@ -17,7 +17,7 @@ pub struct CloneAur<'a> {
     pub alpm: AlpmWrapper,
 }
 
-impl<'a> CloneAur<'a> {
+impl CloneAur<'_> {
     pub fn run(self) -> CloneAurEffect {
         let CloneAur {
             container,

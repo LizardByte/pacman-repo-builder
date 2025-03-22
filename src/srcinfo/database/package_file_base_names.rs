@@ -16,7 +16,10 @@ where
         &'a self,
         filter_arch: impl Fn(&&str) -> bool + Copy + 'a,
     ) -> impl Iterator<
-        Item = Result<PackageFileName<&str, String, &str>, Error<PkgBase, SrcInfoContent>>,
+        Item = Result<
+            PackageFileName<&'a str, String, &'a str>,
+            Error<'a, PkgBase, SrcInfoContent>,
+        >,
     > + 'a {
         self.pkgbase()
             .iter()
