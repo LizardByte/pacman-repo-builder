@@ -74,9 +74,9 @@ jobs:
         uses: ./ci/github-actions/arch-run
         with:
           command: |
-            cargo install cargo-junit cargo-tarpaulin
-            cargo tarpaulin --engine llvm --out Xml
-            cargo junit --name junit.xml
+            cargo install cargo2junit cargo-tarpaulin
+            cargo tarpaulin --engine llvm --out Xml -Z unstable-options -- --format json > results.json
+            cat results.json | cargo2junit > junit.xml
 
             # debug junit.xml
             echo "junit.xml:"
