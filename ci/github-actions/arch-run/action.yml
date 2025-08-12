@@ -1,5 +1,11 @@
 ---
-name: Run command in Arch Linux environment
+name: Arch Linux command runner
+description: Runs a command in an Arch Linux container
+
+branding:
+  icon: terminal
+  color: green
+
 inputs:
   command:
     description: Command to run
