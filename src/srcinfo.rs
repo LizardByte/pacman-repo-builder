@@ -19,7 +19,7 @@ macro_rules! line_extractor {
 }
 
 impl<Text: AsRef<str>> SrcInfo<Text> {
-    fn lines(&self) -> Lines {
+    fn lines(&self) -> Lines<'_> {
         self.0.as_ref().lines()
     }
 
