@@ -31,7 +31,7 @@ path = "src/main.rs"
 
 [dependencies]
 argh = "^0.1.12"
-alpm = "^4.0.1"
+alpm = "^5.0.0"
 command-extra = "^1.0.0"
 git2 = "^0.20.0"
 hex_fmt = "^0.3.0"
