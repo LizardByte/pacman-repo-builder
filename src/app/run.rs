@@ -1,8 +1,7 @@
 use super::super::{
     args::{Args, Command},
     cmd::{
-        build, copyright, deref_db, init_aur_builder, outdated, patch_makepkg, print_config, sort,
-        sync_srcinfo,
+        build, copyright, deref_db, init_aur_builder, outdated, print_config, sort, sync_srcinfo,
     },
     status::Status,
 };
@@ -17,7 +16,6 @@ impl App {
             Command::Sort(args) => sort(args),
             Command::Outdated(args) => outdated(args),
             Command::SyncSrcInfo(args) => sync_srcinfo(args),
-            Command::PatchMakepkg(args) => patch_makepkg(args),
             Command::DerefDb(args) => deref_db(args),
             Command::Build(args) => build(args),
             Command::Copyright(args) => copyright(args),
