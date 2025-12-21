@@ -8,9 +8,8 @@ pub enum Code {
     ManifestLoadingFailure = 2,
     SrcInfoOutOfSync = 3,
     CyclicDependency = 4,
-    UnrecognizedMakepkg = 5,
-    FailedBuildRecordLoadingFailure = 6,
-    FailedBuildRecordWritingFailure = 7,
+    FailedBuildRecordLoadingFailure = 5,
+    FailedBuildRecordWritingFailure = 6,
 }
 
 impl From<Code> for Status {

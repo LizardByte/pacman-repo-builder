@@ -11,6 +11,7 @@ Build a custom pacman repository from a collection of PKGBUILD directories.
 
 * pacman
 * makepkg
+* sudo
 * libalpm.so.13
 * libgit2.so
 
@@ -122,16 +123,10 @@ _Note:_ Replace `$repo_dir` with path of your repository directory. This directo
 _Note:_ Replace `$repo_name` with name of your repository file. This file will be fetched by `pacman` to check for
 updates.
 
-### Replace `/usr/bin/makepkg` with one that allows running as root
+### Build a pacman repository
 
-The normal `makepkg` script does not allow running as root. While it may make sense in a user's machine,
-it inconveniences a Docker container.
-
-```sh
-build-pacman-repo patch-makepkg --replace
-```
-
-### Build a pacman repositories
+The normal `makepkg` script does not allow running as root. To handle this, the build command automatically creates
+a `builder` user and runs all makepkg commands as that user (using `sudo -u builder makepkg`).
 
 ```sh
 build-pacman-repo build
@@ -171,5 +166,5 @@ from either `.SRCINFO` or `PKGBUILD`, sort them by their dependency relationship
 ### Why does this need to be run inside a container?
 
 In order for this program to function properly, it must make several changes to the host system, such as:
-* Replace `/usr/bin/makepkg` with one that allows running as root, so that it may be used in a CI environment.
+* Create a `builder` user to run makepkg commands, as makepkg refuses to run as root.
 * Install every built package just in case it may be depended upon by another package.
