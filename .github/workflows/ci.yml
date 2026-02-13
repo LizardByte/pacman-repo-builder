@@ -1,16 +1,11 @@
 ---
 name: CI
-permissions:
-  contents: read
+permissions: {}
 
 on:
   pull_request:
     branches:
       - master
-    types:
-      - opened
-      - synchronize
-      - reopened
   push:
     branches:
       - master
@@ -46,6 +41,8 @@ jobs:
   build:
     name: Build
     needs: setup_release
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
