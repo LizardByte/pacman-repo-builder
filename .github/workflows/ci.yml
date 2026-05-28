@@ -34,7 +34,7 @@ jobs:
 
       - name: Setup Release
         id: setup_release
-        uses: LizardByte/actions/actions/release_setup@0affa4f7bcb27562658960eee840eff8ff844578  # v2026.328.161128
+        uses: LizardByte/actions/actions/release_setup@25babf9f2e9f088145ba488339c78c4df9394fc7  # v2026.524.145234
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -120,7 +120,7 @@ jobs:
 
       - name: Create/Update GitHub Release
         if: needs.setup_release.outputs.publish_release == 'true'
-        uses: LizardByte/actions/actions/release_create@0affa4f7bcb27562658960eee840eff8ff844578  # v2026.328.161128
+        uses: LizardByte/actions/actions/release_create@25babf9f2e9f088145ba488339c78c4df9394fc7  # v2026.524.145234
         with:
           allowUpdates: false
           artifacts: 'target/x86_64-unknown-linux-gnu/release/build-pacman-repo'
