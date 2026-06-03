@@ -1,3 +1,5 @@
+# NOSONAR(docker:S6471): this GitHub Action builder runs as root so the entrypoint can
+# replace /usr/bin/makepkg and execute pacman/package-build commands in CI.
 FROM archlinux:base-devel
 
 COPY pacman.conf /etc/pacman.conf

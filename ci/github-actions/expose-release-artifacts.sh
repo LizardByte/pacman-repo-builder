@@ -3,7 +3,7 @@ set -o errexit -o pipefail
 
 mkdir ./flatten
 
-[ -d ./downloads ] || {
+[[ -d ./downloads ]] || {
 	echo Folder ./downloads does not exist >/dev/stderr
 	exit 1
 }
