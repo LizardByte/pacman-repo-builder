@@ -21,6 +21,16 @@ include = [
   "/LICENSE.md",
 ]
 
+[workspace]
+resolver = "2"
+
+[workspace.metadata.ci]
+cargo-run-bin = "1.7.4"
+
+[workspace.metadata.bin]
+cargo-edit = { version = "0.13.1", bins = ["cargo-set-version"], locked = true }
+cargo-tarpaulin = { version = "0.35.4", locked = true }
+
 [lib]
 name = "pacman_repo_builder"
 path = "src/lib.rs"
