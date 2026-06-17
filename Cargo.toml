@@ -4,7 +4,7 @@ description = "Build a custom pacman repository from a collection of PKGBUILD di
 version = "0.0.0"
 edition = "2021"
 readme = "README.md"
-license = "GPL-3.0"
+license = "GPL-3.0-only"
 documentation = "https://github.com/LizardByte/pacman-repo-builder/blob/master/README.md"
 repository = "https://github.com/LizardByte/pacman-repo-builder.git"
 keywords = [
@@ -28,6 +28,7 @@ resolver = "2"
 cargo-run-bin = "1.7.4"
 
 [workspace.metadata.bin]
+cargo-deny = { version = "0.19.9", locked = true }
 cargo-edit = { version = "0.13.1", bins = ["cargo-set-version"], locked = true }
 cargo-tarpaulin = { version = "0.35.4", locked = true }
 
