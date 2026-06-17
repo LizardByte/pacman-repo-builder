@@ -60,19 +60,38 @@ jobs:
             ${{ github.job }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('**/Cargo.lock') }}
             ${{ github.job }}-${{ hashFiles('rust-toolchain.toml') }}-
 
+      - name: Install Cargo tools
+        uses: ./ci/github-actions/arch-run
+        with:
+          command: |
+            cargo_run_bin_version="$(
+              cargo metadata --locked --no-deps --format-version 1 \
+                | sed -n 's/.*"cargo-run-bin"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p'
+            )"
+            if [[ -z "${cargo_run_bin_version}" ]]; then
+              echo "Failed to parse cargo-run-bin version from cargo metadata" >&2
+              exit 1
+            fi
+            cargo install --locked cargo-run-bin --version "${cargo_run_bin_version}"
+            if [[ "${{ needs.setup_release.outputs.publish_release }}" == "true" ]]; then
+              cargo bin cargo-set-version --version
+            fi
+            cargo bin cargo-tarpaulin --version
+
       - name: Update Version
         if: needs.setup_release.outputs.publish_release == 'true'
-        run: |
-          cargo install cargo-edit
-          cargo set-version ${{ needs.setup_release.outputs.release_version }}
-          cargo update --workspace
-          cargo metadata --locked --no-deps --format-version 1 > /dev/null
+        uses: ./ci/github-actions/arch-run
+        with:
+          command: |
+            cargo bin cargo-set-version "${{ needs.setup_release.outputs.release_version }}"
+            cargo update --workspace
+            cargo metadata --locked --no-deps --format-version 1 > /dev/null
 
       - name: Test
         id: test
         uses: ./ci/github-actions/arch-run
         with:
-          command: cargo install --locked cargo-tarpaulin; cargo tarpaulin --locked --engine llvm --out Xml
+          command: cargo bin cargo-tarpaulin --locked --engine llvm --out Xml
 
       - name: Upload coverage
         # any except canceled or skipped
