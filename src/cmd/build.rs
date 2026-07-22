@@ -309,7 +309,7 @@ pub fn build(args: BuildArgs) -> Status {
             let pkg_dst_file = repository_directory.join(pkg_file_name);
 
             if !pkg_src_file.exists() {
-                eprintln!("⚠ File {:?} does not exist. Skip.", &pkg_src_file);
+                eprintln!("⚠ File {:?} does not exist. Skip.", pkg_src_file);
                 continue;
             }
 

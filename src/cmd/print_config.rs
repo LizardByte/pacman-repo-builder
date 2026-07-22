@@ -60,7 +60,7 @@ pub fn print_config(args: PrintConfigArgs) -> Status {
     for container in containers {
         let list = match read_dir(&container) {
             Err(error) => {
-                eprintln!("⮾ Cannot read directory {:?}: {}", &container, error);
+                eprintln!("⮾ Cannot read directory {:?}: {}", container, error);
                 error_count += 1;
                 continue;
             }
@@ -69,7 +69,7 @@ pub fn print_config(args: PrintConfigArgs) -> Status {
         for entry in list {
             let directory = match entry {
                 Err(error) => {
-                    eprintln!("⮾ Cannot read an entry of {:?}: {}", &container, error);
+                    eprintln!("⮾ Cannot read an entry of {:?}: {}", container, error);
                     error_count += 1;
                     continue;
                 }
@@ -78,7 +78,7 @@ pub fn print_config(args: PrintConfigArgs) -> Status {
             .path();
             match metadata(&directory) {
                 Err(error) => {
-                    eprintln!("⮾ Cannot stat {:?}: {}", &directory, error);
+                    eprintln!("⮾ Cannot stat {:?}: {}", directory, error);
                     error_count += 1;
                     continue;
                 }
