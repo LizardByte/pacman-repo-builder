@@ -24,9 +24,9 @@ pub fn run_deref_db(repository_directory: &Path) -> Result<(), io::Error> {
         }
         let link_path = canon_repository_directory.join(file_name);
         let link_target = canonicalize(&link_path).expect("canonicalize suspect");
-        eprintln!("  → Delete {:?}", &link_path);
+        eprintln!("  → Delete {:?}", link_path);
         remove_file(&link_path)?;
-        eprintln!("  → Copy {:?} to {:?}", link_target, &link_path);
+        eprintln!("  → Copy {:?} to {:?}", link_target, link_path);
         reflink_or_copy(link_target, link_path)?;
     }
 
