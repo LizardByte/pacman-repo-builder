@@ -1,11 +1,19 @@
-# PacMan Repo Builder
+<div align="center">
+  <img
+    src="https://raw.githubusercontent.com/LizardByte/.github/refs/heads/master/branding/logos/logo.svg"
+    alt="LizardByte icon"
+    width="256"
+  />
+  <h1 align="center">pacman-repo-builder</h1>
+  <h4 align="center">Build a custom pacman repository from a collection of PKGBUILD directories.</h4>
+</div>
 
-[![GitHub stars](https://img.shields.io/github/stars/lizardbyte/pacman-repo-builder.svg?logo=github&style=for-the-badge)](https://github.com/LizardByte/pacman-repo-builder)
-[![GitHub Releases](https://img.shields.io/github/downloads/lizardbyte/pacman-repo-builder/total.svg?style=for-the-badge&logo=github)](https://github.com/LizardByte/pacman-repo-builder/releases/latest)
-[![GitHub Workflow Status (CI)](https://img.shields.io/github/actions/workflow/status/lizardbyte/pacman-repo-builder/ci.yml.svg?branch=master&label=CI%20build&logo=github&style=for-the-badge)](https://github.com/LizardByte/pacman-repo-builder/actions/workflows/ci.yml?query=branch%3Amaster)
-[![Codecov](https://img.shields.io/codecov/c/gh/LizardByte/pacman-repo-builder?token=HZPhTVKYKt&style=for-the-badge&logo=codecov&label=codecov)](https://codecov.io/gh/LizardByte/pacman-repo-builder)
-
-Build a custom pacman repository from a collection of PKGBUILD directories.
+<div align="center">
+  <a href="https://github.com/LizardByte/pacman-repo-builder"><img src="https://img.shields.io/github/stars/lizardbyte/pacman-repo-builder.svg?logo=github&style=for-the-badge" alt="GitHub stars"></a>
+  <a href="https://github.com/LizardByte/pacman-repo-builder/actions/workflows/ci.yml?query=branch%3Amaster"><img src="https://img.shields.io/github/actions/workflow/status/lizardbyte/pacman-repo-builder/ci.yml.svg?branch=master&label=build&logo=github&style=for-the-badge" alt="GitHub Workflow Status"></a>
+  <a href="https://codecov.io/gh/LizardByte/pacman-repo-builder"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fapp.lizardbyte.dev%2Fdashboard%2Fshields%2Fcodecov%2Fpacman-repo-builder.json&style=for-the-badge&logo=codecov" alt="Codecov"></a>
+  <a href="https://sonarcloud.io/project/overview?id=LizardByte_pacman-repo-builder"><img src="https://img.shields.io/sonar/quality_gate/LizardByte_pacman-repo-builder.svg?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarqubecloud&label=sonarcloud" alt="SonarCloud"></a>
+</div>
 
 ## Runtime Dependencies
 
@@ -16,13 +24,14 @@ Build a custom pacman repository from a collection of PKGBUILD directories.
 
 ## Usage
 
-**⚠ WARNING:** This program is meant to be used within a docker container.
+> [!WARNING]
+> This program is meant to be used within a docker container.
 
 ### Manifest file
 
 Manifest file is always named `build-pacman-repo.yaml`. It contains instruction to build a pacman repository.
 
-**Example Manifest File:**
+#### Example Manifest File:
 
 ```yaml
 # build-pacman-repo.yaml
@@ -64,7 +73,7 @@ members:
     allow-failure: false
 ```
 
-**Field Explanations:**
+#### Field Explanations:
 
 _Top-Level:_
 
@@ -118,9 +127,11 @@ build-pacman-repo print-config \
   > build-pacman-repo.yaml
 ```
 
-_Note:_ Replace `$repo_dir` with path of your repository directory. This directory will contain all built packages.
-_Note:_ Replace `$repo_name` with name of your repository file. This file will be fetched by `pacman` to check for
-updates.
+> [!NOTE]
+> Replace `$repo_dir` with path of your repository directory. This directory will contain all built packages.
+
+> [!NOTE]
+> Replace `$repo_name` with name of your repository file. This file will be fetched by `pacman` to check for updates.
 
 ### Replace `/usr/bin/makepkg` with one that allows running as root
 
@@ -137,7 +148,8 @@ build-pacman-repo patch-makepkg --replace
 build-pacman-repo build
 ```
 
-_Note:_ Make sure that `build-pacman-repo.yaml` file exists in current working directory.
+> [!NOTE]
+> Make sure that `build-pacman-repo.yaml` file exists in current working directory.
 
 ### Print help message
 
