@@ -31,6 +31,7 @@ cargo-run-bin = "1.7.4"
 cargo-deny = { version = "0.19.9", locked = true }
 cargo-edit = { version = "0.13.1", bins = ["cargo-set-version"], locked = true }
 cargo-tarpaulin = { version = "0.37.5", locked = true }
+cargo2junit = { version = "0.1.15", locked = true }
 
 [lib]
 name = "pacman_repo_builder"

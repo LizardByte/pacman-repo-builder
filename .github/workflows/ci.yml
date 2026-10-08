@@ -72,6 +72,8 @@ jobs:
   build:
     name: Build
     needs: setup_release
+    env:
+      TEST_TOOLCHAIN: nightly  # libtest's JSON output requires nightly.
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -107,7 +109,8 @@ jobs:
             if [[ "${{ needs.setup_release.outputs.publish_release }}" == "true" ]]; then
               cargo bin cargo-set-version --version
             fi
-            cargo bin cargo-tarpaulin --version
+            rustup toolchain install "${TEST_TOOLCHAIN}" --profile minimal
+            cargo +"${TEST_TOOLCHAIN}" bin cargo-tarpaulin --version
 
       - name: Update Version
         if: needs.setup_release.outputs.publish_release == 'true'
@@ -122,21 +125,26 @@ jobs:
         id: test
         uses: ./ci/github-actions/arch-run
         with:
-          command: cargo bin cargo-tarpaulin --locked --engine llvm --out Xml
+          command: |
+            test_status=0
+            cargo +"${TEST_TOOLCHAIN}" bin cargo-tarpaulin \
+              --locked --engine llvm --out Xml --stderr --no-fail-fast \
+              -- -Z unstable-options --format=json --report-time \
+              > results.json || test_status=$?
+            cargo bin cargo2junit < results.json > junit.xml
+            exit "${test_status}"
 
-      - name: Upload coverage
-        # any except canceled or skipped
+      - name: Upload coverage artifact
         if: >-
           always() &&
-          (steps.test.outcome == 'success' || steps.test.outcome == 'failure') &&
-          startsWith(github.repository, 'LizardByte/')
-        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5  # v7.1.1
+          (steps.test.outcome == 'success' || steps.test.outcome == 'failure')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
-          disable_search: true
-          fail_ci_if_error: true
-          files: cobertura.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
+          if-no-files-found: error
+          name: coverage
+          path: |
+            cobertura.xml
+            junit.xml
 
       - name: Clippy
         uses: ./ci/github-actions/arch-run
@@ -183,3 +191,13 @@ jobs:
           tag: ${{ needs.setup_release.outputs.release_tag }}
           token: ${{ secrets.GH_BOT_TOKEN }}
           virustotal_api_key: ${{ secrets.VIRUSTOTAL_API_KEY }}
+
+  coverage:
+    name: Coverage
+    if: always() && !cancelled() && startsWith(github.repository, 'LizardByte/')
+    needs: build
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci-coverage.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
