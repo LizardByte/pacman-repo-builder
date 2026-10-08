@@ -72,6 +72,8 @@ jobs:
   build:
     name: Build
     needs: setup_release
+    env:
+      TEST_TOOLCHAIN: nightly  # libtest's JSON output requires nightly.
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -107,7 +109,8 @@ jobs:
             if [[ "${{ needs.setup_release.outputs.publish_release }}" == "true" ]]; then
               cargo bin cargo-set-version --version
             fi
-            cargo bin cargo-tarpaulin --version
+            rustup toolchain install "${TEST_TOOLCHAIN}" --profile minimal
+            cargo +"${TEST_TOOLCHAIN}" bin cargo-tarpaulin --version
 
       - name: Update Version
         if: needs.setup_release.outputs.publish_release == 'true'
@@ -123,15 +126,13 @@ jobs:
         uses: ./ci/github-actions/arch-run
         with:
           command: |
-            rustup show
-            rustup override set nightly
-            cargo install cargo2junit cargo-tarpaulin
-            cargo tarpaulin --engine llvm --out Xml -Z unstable-options -- --format json > results.json
-            cat results.json | cargo2junit > junit.xml
-
-            # debug junit.xml
-            echo "junit.xml:"
-            cat junit.xml
+            test_status=0
+            cargo +"${TEST_TOOLCHAIN}" bin cargo-tarpaulin \
+              --locked --engine llvm --out Xml --stderr --no-fail-fast \
+              -- -Z unstable-options --format=json --report-time \
+              > results.json || test_status=$?
+            cargo bin cargo2junit < results.json > junit.xml
+            exit "${test_status}"
 
       - name: Upload test results to Codecov
         # any except canceled or skipped
@@ -139,12 +140,12 @@ jobs:
           always() &&
           (steps.test.outcome == 'success' || steps.test.outcome == 'failure') &&
           startsWith(github.repository, 'LizardByte/')
-        uses: codecov/test-results-action@v1
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5  # v7.1.1
         with:
           disable_search: true
           fail_ci_if_error: true
           files: junit.xml
-          handle_no_reports_found: true
+          report_type: test_results
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
@@ -159,6 +160,7 @@ jobs:
           disable_search: true
           fail_ci_if_error: true
           files: cobertura.xml
+          report_type: coverage
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
