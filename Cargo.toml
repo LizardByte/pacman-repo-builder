@@ -58,7 +58,7 @@ pipe-trait = "^0.4.0"
 rayon = "^1.10.0"
 reflink = "^0.1.3"
 serde_yaml = "^0.9.34"
-sha2 = "^0.10.9"
+sha2 = "^0.11.0"
 smart-default = "^0.7.1"
 
 [dependencies.serde]
