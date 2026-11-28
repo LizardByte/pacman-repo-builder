@@ -1,7 +1,7 @@
 use super::super::{
     args::BuildArgs,
     manifest::{GlobalSettings, Member, TriState},
-    srcinfo::database::DatabaseValue,
+    srcinfo::{database::DatabaseValue, SrcInfo},
     status::{status_of_code, Code, Failure, Status},
     utils::{
         create_makepkg_command, load_failed_build_record, run_deref_db, CommandUtils, DbInit,
@@ -159,93 +159,12 @@ pub fn build(args: BuildArgs) -> Status {
             continue;
         }
 
-        {
-            eprintln!("🛈 Checking for missing dependencies...");
-            let InstallationPlan { wanted, unwanted } = built_packages.needed(
-                srcinfo.all_required_dependencies().map(|x| x.name),
-                srcinfo.conflicts().map(|x| x.name),
-            );
-            let has_wanted = !wanted.is_empty();
-            let has_unwanted = !unwanted.is_empty();
-            if has_wanted {
-                eprintln!(
-                    "🛈 Missing dependencies: {}",
-                    wanted.iter().map(|target| &target.name).join(" ")
-                );
-            }
-            if has_unwanted {
-                eprintln!("🛈 Conflicts: {}", unwanted.iter().join(" "));
-            }
-
-            macro_rules! spawn_and_warn {
-                ($short:literal, $command:expr) => {
-                    match $command
-                        .spawn()
-                        .and_then(|mut child| child.wait())
-                        .map(|status| status.code().unwrap_or(1))
-                    {
-                        Ok(0) => {}
-                        Ok(status) => eprintln!(
-                            "⚠ pacman {} exits with non-zero status code: {}",
-                            $short, status,
-                        ),
-                        Err(error) => eprintln!("⚠ {}", error),
-                    }
-                };
-            }
-
-            if install_missing_dependencies && has_wanted {
-                macro_rules! run_pacman {
-                    ($long:literal, $short:literal, $target:expr) => {
-                        spawn_and_warn!(
-                            $short,
-                            pacman
-                                .unwrap_or("pacman")
-                                .pipe(Command::new)
-                                .with_arg($long)
-                                .with_args($target)
-                                .with_arg("--noconfirm")
-                                .with_arg("--asdeps")
-                                .with_arg("--needed")
-                        );
-                    };
-                }
-
-                let (upgrade_targets, sync_targets): (Vec<_>, Vec<_>) = wanted
-                    .into_iter()
-                    .partition(|target| target.external.is_some());
-
-                if !upgrade_targets.is_empty() {
-                    eprintln!("🛈 Installing missing dependencies from created package files...");
-                    let upgrade_targets = upgrade_targets
-                        .into_iter()
-                        .flat_map(|target| target.external)
-                        .map(OsString::from_vec);
-                    run_pacman!("--upgrade", "-U", upgrade_targets);
-                }
-
-                if !sync_targets.is_empty() {
-                    eprintln!("🛈 Installing missing dependencies from sync database...");
-                    let sync_targets = sync_targets.into_iter().map(|target| target.name);
-                    run_pacman!("--sync", "-S", sync_targets);
-                }
-            }
-
-            if install_missing_dependencies && has_unwanted {
-                eprintln!("🛈 Removing conflicts...");
-                spawn_and_warn!(
-                    "-R",
-                    pacman
-                        .unwrap_or("pacman")
-                        .pipe(Command::new)
-                        .with_arg("--remove")
-                        .with_args(unwanted)
-                        .with_arg("--unneeded")
-                        .with_arg("--assumed-installed")
-                        .with_arg("--noconfirm")
-                );
-            }
-        }
+        prepare_dependencies(
+            &built_packages,
+            srcinfo,
+            install_missing_dependencies,
+            pacman,
+        );
 
         let mut build_failed = false;
         for arch in srcinfo.arch() {
@@ -296,67 +215,23 @@ pub fn build(args: BuildArgs) -> Status {
         }
 
         if build_failed {
-            failed_builds.push((*pkgbase, directory, future_package_file_base_names));
+            failed_builds.push(FailedBuild {
+                pkgbase: pkgbase.0,
+                directory,
+                packages: future_package_file_base_names,
+            });
         }
 
-        for pkg_file_name in srcinfo
-            .package_file_base_names(|arch| arch_filter.test(arch))
-            .expect("get package file base names")
-        {
-            let pkg_file_name = &pkg_file_name.to_string();
-            let pkg_src_file = directory.join(pkg_file_name);
-            let pkg_dst_file = repository_directory.join(pkg_file_name);
-
-            if !pkg_src_file.exists() {
-                eprintln!("⚠ File {:?} does not exist. Skip.", pkg_src_file);
-                continue;
-            }
-
-            eprintln!("📦 made file {}", pkg_file_name);
-
-            {
-                built_packages.add_external_package(pkg_src_file.as_os_str().as_bytes().to_vec());
-            }
-
-            {
-                eprintln!("  → copy to {}/", repository_directory.to_string_lossy());
-                if let Err(error) = reflink_or_copy(&pkg_src_file, pkg_dst_file) {
-                    eprintln!("⮾ {}", error);
-                    return error.pipe(Failure::from).into();
-                }
-            }
-
-            if clean_after_build {
-                eprintln!("  → clean");
-                if let Err(error) = remove_file(pkg_src_file) {
-                    eprintln!("⚠ {}", error);
-                }
-            }
-
-            {
-                eprintln!("  → add to {}", repository.to_string_lossy());
-                let status = Command::new("repo-add")
-                    .with_arg("--quiet")
-                    .with_arg("--nocolor")
-                    .with_arg(repository)
-                    .with_arg(repository_directory.join(pkg_file_name))
-                    .with_stdin(Stdio::null())
-                    .with_stdout(Stdio::inherit())
-                    .with_stderr(Stdio::inherit())
-                    .spawn()
-                    .and_then(|mut child| child.wait())
-                    .map_err(|error| {
-                        eprintln!("⮾ {}", error);
-                        Failure::from(error)
-                    })?
-                    .code()
-                    .unwrap_or(1);
-                if status != 0 {
-                    eprintln!("⮾ repo-add exits with non-zero status code: {}", status);
-                    return status_of_code(status);
-                }
-            }
-        }
+        publish_packages(
+            srcinfo
+                .package_file_base_names(|arch| arch_filter.test(arch))
+                .expect("get package file base names"),
+            directory,
+            repository,
+            repository_directory,
+            clean_after_build,
+            &mut built_packages,
+        )?;
     }
 
     if dereference_database_symlinks {
@@ -369,37 +244,212 @@ pub fn build(args: BuildArgs) -> Status {
         })?;
     }
 
-    if !failed_builds.is_empty() {
-        eprintln!();
-        eprintln!();
-        eprintln!("🛈 Some builds failed:");
-        for (pkgbase, directory, _) in &failed_builds {
-            eprintln!("  ● {} ({})", pkgbase, directory.to_string_lossy());
-        }
+    report_failed_builds(
+        failed_builds,
+        record_failed_builds.as_ref().map(AsRef::as_ref),
+        failed_build_record,
+    )
+}
 
-        if let Some(record_path) = record_failed_builds {
-            let mut failed_build_record = failed_build_record;
-            for (_, _, record) in failed_builds {
-                for PackageFileName {
-                    pkgname,
-                    version,
-                    arch,
-                } in record
-                {
-                    failed_build_record.push(PackageFileName {
-                        pkgname: pkgname.to_string(),
-                        version,
-                        arch: arch.to_string(),
-                    });
-                }
+fn prepare_dependencies(
+    built_packages: &ExternalPackageList,
+    srcinfo: &SrcInfo<&str>,
+    install_missing_dependencies: bool,
+    pacman: Option<&str>,
+) {
+    eprintln!("🛈 Checking for missing dependencies...");
+    let InstallationPlan { wanted, unwanted } = built_packages.needed(
+        srcinfo.all_required_dependencies().map(|x| x.name),
+        srcinfo.conflicts().map(|x| x.name),
+    );
+    let has_wanted = !wanted.is_empty();
+    let has_unwanted = !unwanted.is_empty();
+    if has_wanted {
+        eprintln!(
+            "🛈 Missing dependencies: {}",
+            wanted.iter().map(|target| &target.name).join(" ")
+        );
+    }
+    if has_unwanted {
+        eprintln!("🛈 Conflicts: {}", unwanted.iter().join(" "));
+    }
+
+    macro_rules! spawn_and_warn {
+        ($short:literal, $command:expr) => {
+            match $command
+                .spawn()
+                .and_then(|mut child| child.wait())
+                .map(|status| status.code().unwrap_or(1))
+            {
+                Ok(0) => {}
+                Ok(status) => eprintln!(
+                    "⚠ pacman {} exits with non-zero status code: {}",
+                    $short, status,
+                ),
+                Err(error) => eprintln!("⚠ {}", error),
             }
+        };
+    }
 
-            let content = serde_yaml::to_string(&failed_build_record).unwrap();
-            write(record_path.as_ref(), content).map_err(|error| {
-                eprintln!("⮾ {}", error);
-                Failure::from(Code::FailedBuildRecordWritingFailure)
-            })?;
+    if install_missing_dependencies && has_wanted {
+        macro_rules! run_pacman {
+            ($long:literal, $short:literal, $target:expr) => {
+                spawn_and_warn!(
+                    $short,
+                    pacman
+                        .unwrap_or("pacman")
+                        .pipe(Command::new)
+                        .with_arg($long)
+                        .with_args($target)
+                        .with_arg("--noconfirm")
+                        .with_arg("--asdeps")
+                        .with_arg("--needed")
+                );
+            };
         }
+
+        let (upgrade_targets, sync_targets): (Vec<_>, Vec<_>) = wanted
+            .into_iter()
+            .partition(|target| target.external.is_some());
+
+        if !upgrade_targets.is_empty() {
+            eprintln!("🛈 Installing missing dependencies from created package files...");
+            let upgrade_targets = upgrade_targets
+                .into_iter()
+                .flat_map(|target| target.external)
+                .map(OsString::from_vec);
+            run_pacman!("--upgrade", "-U", upgrade_targets);
+        }
+
+        if !sync_targets.is_empty() {
+            eprintln!("🛈 Installing missing dependencies from sync database...");
+            let sync_targets = sync_targets.into_iter().map(|target| target.name);
+            run_pacman!("--sync", "-S", sync_targets);
+        }
+    }
+
+    if install_missing_dependencies && has_unwanted {
+        eprintln!("🛈 Removing conflicts...");
+        spawn_and_warn!(
+            "-R",
+            pacman
+                .unwrap_or("pacman")
+                .pipe(Command::new)
+                .with_arg("--remove")
+                .with_args(unwanted)
+                .with_arg("--unneeded")
+                .with_arg("--assumed-installed")
+                .with_arg("--noconfirm")
+        );
+    }
+}
+
+fn publish_packages<'a>(
+    packages: impl Iterator<Item = PackageFileName<&'a str, String, &'a str>>,
+    directory: &Path,
+    repository: &Path,
+    repository_directory: &Path,
+    clean_after_build: bool,
+    built_packages: &mut ExternalPackageList,
+) -> Status {
+    for pkg_file_name in packages {
+        let pkg_file_name = &pkg_file_name.to_string();
+        let pkg_src_file = directory.join(pkg_file_name);
+        let pkg_dst_file = repository_directory.join(pkg_file_name);
+
+        if !pkg_src_file.exists() {
+            eprintln!("⚠ File {:?} does not exist. Skip.", pkg_src_file);
+            continue;
+        }
+
+        eprintln!("📦 made file {}", pkg_file_name);
+
+        {
+            built_packages.add_external_package(pkg_src_file.as_os_str().as_bytes().to_vec());
+        }
+
+        {
+            eprintln!("  → copy to {}/", repository_directory.to_string_lossy());
+            if let Err(error) = reflink_or_copy(&pkg_src_file, pkg_dst_file) {
+                eprintln!("⮾ {}", error);
+                return error.pipe(Failure::from).into();
+            }
+        }
+
+        if clean_after_build {
+            eprintln!("  → clean");
+            if let Err(error) = remove_file(pkg_src_file) {
+                eprintln!("⚠ {}", error);
+            }
+        }
+
+        {
+            eprintln!("  → add to {}", repository.to_string_lossy());
+            let status = Command::new("repo-add")
+                .with_arg("--quiet")
+                .with_arg("--nocolor")
+                .with_arg(repository)
+                .with_arg(repository_directory.join(pkg_file_name))
+                .with_stdin(Stdio::null())
+                .with_stdout(Stdio::inherit())
+                .with_stderr(Stdio::inherit())
+                .spawn()
+                .and_then(|mut child| child.wait())
+                .map_err(|error| {
+                    eprintln!("⮾ {}", error);
+                    Failure::from(error)
+                })?
+                .code()
+                .unwrap_or(1);
+            if status != 0 {
+                eprintln!("⮾ repo-add exits with non-zero status code: {}", status);
+                return status_of_code(status);
+            }
+        }
+    }
+
+    Ok(())
+}
+
+struct FailedBuild<'a> {
+    pkgbase: &'a str,
+    directory: &'a Path,
+    packages: Vec<PackageFileName<&'a str, String, &'a str>>,
+}
+
+fn report_failed_builds(
+    failed_builds: Vec<FailedBuild<'_>>,
+    record_path: Option<&Path>,
+    mut record: Vec<PackageFileName<String, String, String>>,
+) -> Status {
+    if failed_builds.is_empty() {
+        return Ok(());
+    }
+
+    eprintln!();
+    eprintln!();
+    eprintln!("🛈 Some builds failed:");
+    for FailedBuild {
+        pkgbase, directory, ..
+    } in &failed_builds
+    {
+        eprintln!("  ● {} ({})", pkgbase, directory.to_string_lossy());
+    }
+
+    if let Some(record_path) = record_path {
+        for FailedBuild { packages, .. } in failed_builds {
+            record.extend(packages.into_iter().map(|package| PackageFileName {
+                pkgname: package.pkgname.to_string(),
+                version: package.version,
+                arch: package.arch.to_string(),
+            }));
+        }
+
+        let content = serde_yaml::to_string(&record).unwrap();
+        write(record_path, content).map_err(|error| {
+            eprintln!("⮾ {}", error);
+            Failure::from(Code::FailedBuildRecordWritingFailure)
+        })?;
     }
 
     Ok(())

@@ -1,6 +1,13 @@
 use command_extra::CommandExtra;
+use pacman_repo_builder::{manifest::OwnedBuildPacmanRepo, status::Code};
 use pipe_trait::*;
-use std::{path::PathBuf, process::Command};
+use std::{
+    fs,
+    os::unix::fs::symlink,
+    path::{Path, PathBuf},
+    process::Command,
+};
+use tempfile::TempDir;
 
 const EXE: &str = env!("CARGO_BIN_EXE_build-pacman-repo");
 const ROOT: &str = env!("CARGO_MANIFEST_DIR");
@@ -211,4 +218,44 @@ fn with_check_disabled() {
         true,
     );
     assert_eq!(actual, expected);
+}
+
+#[test]
+fn reports_container_errors_and_keeps_valid_members() {
+    let work_dir = TempDir::new().expect("create temporary container directory");
+    fs::create_dir_all(work_dir.path().join("packages/valid")).expect("create package directory");
+    symlink("nonexistent", work_dir.path().join("packages/broken")).expect("create dangling link");
+
+    let output = Command::new(EXE)
+        .current_dir(work_dir.path())
+        .args([
+            "print-config",
+            "--repository",
+            "repo/test.db.tar.gz",
+            "--container",
+            "missing",
+            "--container",
+            "packages",
+        ])
+        .output()
+        .expect("run print-config");
+
+    assert_eq!(output.status.code(), Some(Code::GenericFailure as i32));
+    let stderr = String::from_utf8(output.stderr).expect("read stderr");
+    assert!(
+        stderr.contains("Cannot read directory \"missing\""),
+        "{stderr}"
+    );
+    assert!(
+        stderr.contains("Cannot stat \"packages/broken\""),
+        "{stderr}"
+    );
+    assert!(stderr.contains("2 errors occurred."), "{stderr}");
+    let manifest: OwnedBuildPacmanRepo =
+        serde_yaml::from_slice(&output.stdout).expect("parse printed manifest");
+    assert_eq!(manifest.members.len(), 1);
+    assert_eq!(
+        manifest.members[0].directory.as_ref(),
+        Path::new("packages/valid")
+    );
 }
