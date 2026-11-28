@@ -38,7 +38,7 @@ where
 {
     stdout
         .lines()
-        .map(|x| x.trim())
+        .map(str::trim)
         .filter(|x| !x.is_empty())
         .filter(filter)
         .collect()
