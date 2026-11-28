@@ -21,6 +21,13 @@ impl MakepkgPatch {
     }
 }
 
+const MAKEPKG6_PATCH: MakepkgPatch = MakepkgPatch {
+    custom_content: include_str!("./patches/makepkg6"),
+    custom_sha256sum: hex!("57e7a7976fc8b9f9f909475234a96ef23dc4a946da572b30d24e2e566dcc19d0"),
+    // pacman-6.0.0-1
+    original_sha256sum: hex!("aaed7e7adbed3e7340fcfc92098181ed78bca510565003390e123b41a52c3a86"),
+};
+
 pub const MAKEPKG_PATCHES: [MakepkgPatch; 7] = [
     MakepkgPatch {
         custom_content: include_str!("./patches/makepkg5"),
@@ -30,37 +37,27 @@ pub const MAKEPKG_PATCHES: [MakepkgPatch; 7] = [
             "46bcdfd2dcee085e0af808a23819959b919b646874b7a21fdf6b8c2d4070048c"
         ),
     },
+    MAKEPKG6_PATCH,
     MakepkgPatch {
-        custom_content: include_str!("./patches/makepkg6"),
-        custom_sha256sum: hex!("57e7a7976fc8b9f9f909475234a96ef23dc4a946da572b30d24e2e566dcc19d0"),
-        // pacman-6.0.0-1
-        original_sha256sum: hex!(
-            "aaed7e7adbed3e7340fcfc92098181ed78bca510565003390e123b41a52c3a86"
-        ),
-    },
-    MakepkgPatch {
-        custom_content: include_str!("./patches/makepkg6"),
-        custom_sha256sum: hex!("57e7a7976fc8b9f9f909475234a96ef23dc4a946da572b30d24e2e566dcc19d0"),
         // pacman-6.0.1-1
         original_sha256sum: hex!(
             "4951379ce18dec36ef077557e2765ee76fefcd6bce75d7897bc6bdece7e943b5"
         ),
+        ..MAKEPKG6_PATCH
     },
     MakepkgPatch {
-        custom_content: include_str!("./patches/makepkg6"),
-        custom_sha256sum: hex!("57e7a7976fc8b9f9f909475234a96ef23dc4a946da572b30d24e2e566dcc19d0"),
         // pacman-6.0.2-1
         original_sha256sum: hex!(
             "f06df9f6efe840d10efbe37b489e0d008fa4a28d562cef5a72480bbce4eb0eb5"
         ),
+        ..MAKEPKG6_PATCH
     },
     MakepkgPatch {
-        custom_content: include_str!("./patches/makepkg6"),
-        custom_sha256sum: hex!("57e7a7976fc8b9f9f909475234a96ef23dc4a946da572b30d24e2e566dcc19d0"),
         // pacman-6.1.0-1
         original_sha256sum: hex!(
             "e4453e78e964be351820d7370e6138490bc222f8fcbb960b45d2cdb8dbfdefed"
         ),
+        ..MAKEPKG6_PATCH
     },
     MakepkgPatch {
         custom_content: include_str!("./patches/makepkg7"),
