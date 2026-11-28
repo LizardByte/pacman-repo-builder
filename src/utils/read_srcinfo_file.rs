@@ -1,4 +1,4 @@
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::{fs::read, path::PathBuf};
 
 pub fn read_srcinfo_file(file: PathBuf) -> Result<String, String> {

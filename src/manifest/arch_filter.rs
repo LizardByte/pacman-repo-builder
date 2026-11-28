@@ -1,5 +1,5 @@
 use super::{ArchCollectionWrapper, BorrowedArchCollection, OwnedArchCollection, Wrapper};
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Copy, Clone, Default)]

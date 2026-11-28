@@ -5,7 +5,7 @@ pub mod version;
 use super::utils::{extract_value_from_line, PackageFileName};
 use dependency::{ReasonedDependency, UnreasonedDependency};
 use itertools::Itertools;
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::str::Lines;
 use version::Version;
 

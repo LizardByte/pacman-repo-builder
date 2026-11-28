@@ -2,7 +2,7 @@ use super::super::super::status::Code;
 use super::{Database, DatabaseValue};
 use indexmap::IndexMap;
 use petgraph::{algo::toposort, graph::Graph};
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::{
     fmt::{self, Debug, Display, Formatter},
     hash::Hash,

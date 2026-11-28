@@ -7,7 +7,7 @@ pub mod status;
 pub mod utils;
 
 pub fn main() {
-    use pipe_trait::*;
+    use pipe_trait::Pipe;
     app::App::from_env()
         .run()
         .pipe(status::get_code)

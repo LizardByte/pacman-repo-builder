@@ -1,5 +1,5 @@
 use super::super::manifest::TriState;
-use argh::*;
+use argh::FromArgs;
 use std::path::PathBuf;
 
 #[derive(Debug, FromArgs)]

@@ -5,7 +5,7 @@ use super::{
     OwnedArchCollection, OwnedAurCollection, OwnedContainer, OwnedFailedBuildRecord, OwnedPackager,
     OwnedPacman, OwnedRepository, PackagerWrapper, PacmanWrapper, RepositoryWrapper, Wrapper,
 };
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use serde::{Deserialize, Serialize};
 use std::{fs::File, io::ErrorKind, path::Path};
 

@@ -1,5 +1,5 @@
 use super::{Failure, Status};
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::num::NonZeroI32;
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]

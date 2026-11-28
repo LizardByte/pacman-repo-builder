@@ -5,7 +5,7 @@ use super::super::{
 };
 use super::{read_srcinfo_texts, Pair};
 use indexmap::{IndexMap, IndexSet};
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::path::PathBuf;
 
 #[derive(Debug, Default)]

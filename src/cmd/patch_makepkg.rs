@@ -4,7 +4,7 @@ use super::super::{
     utils::{MakepkgPatch, MAKEPKG_PATCHES},
 };
 use hex_fmt::HexFmt;
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::fs::{read, write};
 
 pub fn patch_makepkg(args: PatchMakepkgArgs) -> Status {

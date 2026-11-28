@@ -1,7 +1,7 @@
 use super::super::super::utils::PackageFileName;
 use super::super::SrcInfo;
 use super::{Database, DatabaseValue};
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::{hash::Hash, path::Path};
 
 impl<PkgBase, PkgName, SrcInfoContent, BuildDir>

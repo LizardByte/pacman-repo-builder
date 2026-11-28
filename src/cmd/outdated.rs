@@ -3,7 +3,7 @@ use super::super::{
     status::{Code, Failure, Status},
     utils::{load_failed_build_record, outdated_packages, DbInit, DbInitValue, PackageFileName},
 };
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::{fs::read_dir, path::PathBuf};
 
 pub fn outdated(args: OutdatedArgs) -> Status {
