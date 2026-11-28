@@ -66,10 +66,7 @@ pub fn sync_srcinfo(args: SyncSrcInfoArgs) -> Status {
             };
 
             fn comparable(srcinfo: &str) -> impl Iterator<Item = &str> {
-                srcinfo
-                    .lines()
-                    .map(|x| x.trim_end())
-                    .filter(|x| !x.is_empty())
+                srcinfo.lines().map(str::trim_end).filter(|x| !x.is_empty())
             }
 
             if comparable(&new_srcinfo_content).eq(comparable(&old_srcinfo_content)) {
