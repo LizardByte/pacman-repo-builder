@@ -27,15 +27,15 @@ pub fn patch_makepkg(args: PatchMakepkgArgs) -> Status {
     ) {
         (Ok(patch), _) => patch,
         (Err(actual_hash), false) => {
-            eprintln!("🛈 sha1sum of expected default system makepkg:");
+            eprintln!("🛈 sha256sum of expected default system makepkg:");
             for patch in &MAKEPKG_PATCHES {
-                eprintln!("  → {}", HexFmt(patch.original_sha1sum));
+                eprintln!("  → {}", HexFmt(patch.original_sha256sum));
             }
-            eprintln!("🛈 sha1sum of custom makepkg:");
+            eprintln!("🛈 sha256sum of custom makepkg:");
             for patch in &MAKEPKG_PATCHES {
-                eprintln!("  → {}", HexFmt(patch.custom_sha1sum));
+                eprintln!("  → {}", HexFmt(patch.custom_sha256sum));
             }
-            eprintln!("🛈 sha1sum of actual system makepkg:");
+            eprintln!("🛈 sha256sum of actual system makepkg:");
             eprintln!("  → {}", HexFmt(actual_hash));
             eprintln!("⮾ makepkg had been modified by an unknown party");
             eprintln!("⮾ it is not safe to proceed");
@@ -47,15 +47,15 @@ pub fn patch_makepkg(args: PatchMakepkgArgs) -> Status {
 
     if !unsafe_ignore_unknown_changes {
         if let Err(actual_hash) = MakepkgPatch::find_patch(&MAKEPKG_PATCHES, &makepkg) {
-            eprintln!("🛈 sha1sum of expected default system makepkg:");
+            eprintln!("🛈 sha256sum of expected default system makepkg:");
             for patch in &MAKEPKG_PATCHES {
-                eprintln!("  → {}", HexFmt(patch.original_sha1sum));
+                eprintln!("  → {}", HexFmt(patch.original_sha256sum));
             }
-            eprintln!("🛈 sha1sum of custom makepkg:");
+            eprintln!("🛈 sha256sum of custom makepkg:");
             for patch in &MAKEPKG_PATCHES {
-                eprintln!("  → {}", HexFmt(patch.custom_sha1sum));
+                eprintln!("  → {}", HexFmt(patch.custom_sha256sum));
             }
-            eprintln!("🛈 sha1sum of actual system makepkg:");
+            eprintln!("🛈 sha256sum of actual system makepkg:");
             eprintln!("  → {}", HexFmt(actual_hash));
             eprintln!("⮾ makepkg had been modified by an unknown party");
             eprintln!("⮾ it is not safe to proceed");

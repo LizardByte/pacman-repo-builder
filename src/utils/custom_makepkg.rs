@@ -1,20 +1,21 @@
 use hex_literal::hex;
-use sha1::{digest::Output, Digest, Sha1};
+use sha2::{digest::Output, Digest, Sha256};
 
 #[derive(Debug, Clone, Copy)]
 pub struct MakepkgPatch {
     pub custom_content: &'static str,
-    pub custom_sha1sum: [u8; 20],
-    pub original_sha1sum: [u8; 20],
+    pub custom_sha256sum: [u8; 32],
+    pub original_sha256sum: [u8; 32],
 }
 
 impl MakepkgPatch {
-    pub fn find_patch(list: &[Self], original_content: &[u8]) -> Result<Self, Output<Sha1>> {
-        let hash = Sha1::digest(original_content);
+    pub fn find_patch(list: &[Self], original_content: &[u8]) -> Result<Self, Output<Sha256>> {
+        let hash = Sha256::digest(original_content);
         list.iter()
             .copied()
             .find(|patch| {
-                patch.original_sha1sum == hash.as_slice() || patch.custom_sha1sum == hash.as_slice()
+                patch.original_sha256sum == hash.as_slice()
+                    || patch.custom_sha256sum == hash.as_slice()
             })
             .ok_or(hash)
     }
@@ -23,54 +24,78 @@ impl MakepkgPatch {
 pub const MAKEPKG_PATCHES: [MakepkgPatch; 7] = [
     MakepkgPatch {
         custom_content: include_str!("./patches/makepkg5"),
-        custom_sha1sum: hex!("4ca18588b27b7e10b2329fb4e636ab33208a9915"),
-        original_sha1sum: hex!("b3fc29f045a5a00b927e14d43d632efe8aa74c6a"),
+        custom_sha256sum: hex!("cf9afaccb49ef852cc8d0ba5977f9cd0dabee57e0e3ac5108846dcb7a1cd7937"),
+        // pacman-5.2.2-1
+        original_sha256sum: hex!(
+            "46bcdfd2dcee085e0af808a23819959b919b646874b7a21fdf6b8c2d4070048c"
+        ),
     },
     MakepkgPatch {
         custom_content: include_str!("./patches/makepkg6"),
-        custom_sha1sum: hex!("8fd61bf5635ec3a64b623272c212430496ade15f"),
-        original_sha1sum: hex!("7823557b88e5390b38ec91a8bf931a966eda018b"),
+        custom_sha256sum: hex!("57e7a7976fc8b9f9f909475234a96ef23dc4a946da572b30d24e2e566dcc19d0"),
+        // pacman-6.0.0-1
+        original_sha256sum: hex!(
+            "aaed7e7adbed3e7340fcfc92098181ed78bca510565003390e123b41a52c3a86"
+        ),
     },
     MakepkgPatch {
         custom_content: include_str!("./patches/makepkg6"),
-        custom_sha1sum: hex!("8fd61bf5635ec3a64b623272c212430496ade15f"),
-        original_sha1sum: hex!("c76d418d3ddb285559e18dfeba40f1731b30acdc"),
+        custom_sha256sum: hex!("57e7a7976fc8b9f9f909475234a96ef23dc4a946da572b30d24e2e566dcc19d0"),
+        // pacman-6.0.1-1
+        original_sha256sum: hex!(
+            "4951379ce18dec36ef077557e2765ee76fefcd6bce75d7897bc6bdece7e943b5"
+        ),
     },
     MakepkgPatch {
         custom_content: include_str!("./patches/makepkg6"),
-        custom_sha1sum: hex!("8fd61bf5635ec3a64b623272c212430496ade15f"),
-        original_sha1sum: hex!("fb8197785e4985c561264af9ffcc67391e5220d6"),
+        custom_sha256sum: hex!("57e7a7976fc8b9f9f909475234a96ef23dc4a946da572b30d24e2e566dcc19d0"),
+        // pacman-6.0.2-1
+        original_sha256sum: hex!(
+            "f06df9f6efe840d10efbe37b489e0d008fa4a28d562cef5a72480bbce4eb0eb5"
+        ),
     },
     MakepkgPatch {
         custom_content: include_str!("./patches/makepkg6"),
-        custom_sha1sum: hex!("8fd61bf5635ec3a64b623272c212430496ade15f"),
-        original_sha1sum: hex!("b91192d0c4d06643e376a04e5fb85335877550e3"),
+        custom_sha256sum: hex!("57e7a7976fc8b9f9f909475234a96ef23dc4a946da572b30d24e2e566dcc19d0"),
+        // pacman-6.1.0-1
+        original_sha256sum: hex!(
+            "e4453e78e964be351820d7370e6138490bc222f8fcbb960b45d2cdb8dbfdefed"
+        ),
     },
     MakepkgPatch {
         custom_content: include_str!("./patches/makepkg7"),
-        custom_sha1sum: hex!("b747ca08e30299788c39a084436cba78b42f1f4e"),
-        original_sha1sum: hex!("7df79b2a25c23fd9fe3040b8eb855a518c0b0a31"),
+        custom_sha256sum: hex!("7c5c46a2b92efbb67f69ec4c54130d1aa5be87d44b2e33e6f9664404c9e75f96"),
+        // pacman-7.0.0.r1.g7cf2b01-1
+        original_sha256sum: hex!(
+            "5d50987152a311e455e92c3e75612c431fd6be2c1b4b2879e7947e5297df9c6f"
+        ),
     },
     MakepkgPatch {
         custom_content: include_str!("./patches/makepkg8"),
-        custom_sha1sum: hex!("d46fc264f844312288f88f3ed70f956a1e0e579d"),
-        original_sha1sum: hex!("35e3846d107099ce37fcf951b15c4ce667504f44"),
+        custom_sha256sum: hex!("acf14363bb73e2fb14c49047fa44ad3bdf064d49a5177f81965a771dfd20e948"),
+        // pacman-7.1.0.r7.gb9f7d4a-1
+        original_sha256sum: hex!(
+            "ecc42cabafaa51b0f84084c2f9eeee3c358d62fe533cb4002207f95c84e486b1"
+        ),
     },
 ];
 
-#[test]
-fn test_custom_makepkg_sha1sum() {
-    use hex_fmt::HexFmt;
-    use sha1::{Digest, Sha1};
-    for MakepkgPatch {
-        custom_content,
-        custom_sha1sum,
-        ..
-    } in MAKEPKG_PATCHES.iter().copied()
-    {
-        let actual = Sha1::digest(custom_content);
-        eprintln!("expect: {}", HexFmt(&custom_sha1sum));
-        eprintln!("actual: {}", HexFmt(actual.as_slice()));
-        assert_eq!(actual.as_slice(), &custom_sha1sum);
+#[cfg(test)]
+mod tests {
+    use super::{MakepkgPatch, MAKEPKG_PATCHES};
+
+    #[test]
+    fn recognizes_bundled_makepkg_scripts() {
+        for patch in MAKEPKG_PATCHES {
+            let matched =
+                MakepkgPatch::find_patch(&MAKEPKG_PATCHES, patch.custom_content.as_bytes())
+                    .unwrap();
+            assert_eq!(matched.custom_content, patch.custom_content);
+        }
+    }
+
+    #[test]
+    fn rejects_unknown_makepkg_scripts() {
+        assert!(MakepkgPatch::find_patch(&MAKEPKG_PATCHES, b"unknown makepkg script").is_err());
     }
 }
