@@ -289,10 +289,9 @@ pub fn build(args: BuildArgs) -> Status {
                     eprintln!("⚠ makepkg exits with non-zero status code: {}", status);
                     eprintln!("⚠ skip {}", pkgbase);
                     continue;
-                } else {
-                    eprintln!("⮾ makepkg exits with non-zero status code: {}", status);
-                    return status_of_code(status);
                 }
+                eprintln!("⮾ makepkg exits with non-zero status code: {}", status);
+                return status_of_code(status);
             }
         }
 
