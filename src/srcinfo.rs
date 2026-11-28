@@ -99,7 +99,7 @@ impl<Text: AsRef<str>> SrcInfo<Text> {
         &self,
         filter_arch: impl Fn(&&str) -> bool,
     ) -> Result<impl Iterator<Item = PackageFileName<&str, String, &str>> + '_, String> {
-        let version = self.version().map_err(String::from)?.try_to_string()?;
+        let version = self.version()?.try_to_string()?;
 
         self.pkgname()
             .cartesian_product(self.arch().filter(filter_arch).collect::<Vec<_>>())
