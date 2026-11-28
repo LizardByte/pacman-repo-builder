@@ -1,6 +1,6 @@
 use super::create_makepkg_command;
 use command_extra::CommandExtra;
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::path::Path;
 
 pub fn read_srcinfo_from_pkgbuild(directory: &Path) -> Result<String, String> {

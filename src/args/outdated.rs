@@ -1,4 +1,4 @@
-use argh::*;
+use argh::FromArgs;
 use std::str::FromStr;
 
 #[derive(Debug, FromArgs)]

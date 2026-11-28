@@ -1,4 +1,4 @@
-use argh::*;
+use argh::FromArgs;
 
 #[derive(Debug, FromArgs)]
 #[argh(subcommand, name = "build", description = "Build a pacman repository")]

@@ -4,7 +4,7 @@ use super::{
     SimpleDatabase, SimpleDatabaseValue,
 };
 use indexmap::IndexSet;
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::{
     fmt::{self, Display, Formatter},
     path::Path,

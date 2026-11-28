@@ -4,7 +4,7 @@ use super::{
 };
 use git2::Repository;
 use indexmap::IndexSet;
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use rayon::prelude::*;
 use std::{ops::Add, path::Path};
 

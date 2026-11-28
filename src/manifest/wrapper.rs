@@ -1,4 +1,4 @@
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use serde::{Deserialize, Serialize};
 use std::{
     iter::FromIterator,

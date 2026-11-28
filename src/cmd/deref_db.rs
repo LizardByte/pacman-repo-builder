@@ -4,7 +4,7 @@ use super::super::{
     status::{Code, Failure, Status},
     utils::run_deref_db,
 };
-use pipe_trait::*;
+use pipe_trait::Pipe;
 
 pub fn deref_db(args: DerefDbArgs) -> Status {
     let DerefDbArgs {} = args;

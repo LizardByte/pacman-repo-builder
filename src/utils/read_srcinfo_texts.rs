@@ -1,6 +1,6 @@
 use super::super::manifest::{BuildMetadata, Member, OwnedBuildPacmanRepo, OwnedMember};
 use super::{read_srcinfo_file, read_srcinfo_from_directory, read_srcinfo_from_pkgbuild, Pair};
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use rayon::prelude::*;
 use std::path::Path;
 

@@ -4,7 +4,7 @@ use super::super::{
     status::{Code, Failure, Status},
     utils::read_srcinfo_from_pkgbuild,
 };
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use rayon::prelude::*;
 use std::{
     fs::{read_to_string, write},

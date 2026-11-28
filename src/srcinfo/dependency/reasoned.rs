@@ -1,6 +1,6 @@
 use super::super::super::utils::{extract_pkgname_prefix, split_str_once};
 use super::unreasoned::UnreasonedDependency;
-use pipe_trait::*;
+use pipe_trait::Pipe;
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct ReasonedDependency<Name, Range, Reason>

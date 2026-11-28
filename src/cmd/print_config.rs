@@ -6,7 +6,7 @@ use super::super::{
     },
     status::{Code, Status},
 };
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::{
     fs::{metadata, read_dir},
     io::stdout,

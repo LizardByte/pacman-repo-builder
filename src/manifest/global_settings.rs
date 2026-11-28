@@ -6,7 +6,7 @@ use super::{
     OwnedRepository, OwnedWrapper, PackagerWrapper, PacmanWrapper, RepositoryWrapper, TriState,
     Wrapper,
 };
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Serialize, Deserialize, Eq, PartialEq)]

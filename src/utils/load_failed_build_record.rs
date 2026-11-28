@@ -1,6 +1,6 @@
 use super::super::manifest::OwnedFailedBuildRecord;
 use super::PackageFileName;
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use std::{fs::File, io::ErrorKind};
 
 pub fn load_failed_build_record(

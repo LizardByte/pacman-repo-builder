@@ -10,7 +10,7 @@ use super::super::{
 };
 use command_extra::CommandExtra;
 use itertools::Itertools;
-use pipe_trait::*;
+use pipe_trait::Pipe;
 use reflink::reflink_or_copy;
 use std::{
     ffi::OsString,
